@@ -13,3 +13,12 @@ https://pragprog.com/book/jbmaze/mazes-for-programmers
 - https://github.com/glv/snergly
 - https://github.com/korczis/maze-rs
 - https://github.com/rcook/mazes-for-programmers
+
+## Other resources
+
+- https://github.com/schmanu/elm-maze
+- https://temochka.com/blog/posts/2019/02/25/functional-mazes-elm.html
+- https://github.com/krisajenkins/elm-maze
+- https://mmhaskell.com/blog/2019/4/8/generating-more-difficult-mazes
+- https://jeremybytes.blogspot.com/2017/03/approaching-function-programming.html
+
