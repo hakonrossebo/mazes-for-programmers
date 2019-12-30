@@ -18,4 +18,22 @@ module BinaryTree =
             )
         grid
 
+module Sidewinder =
+    let createMaze (grid:Grid) : Grid = 
+        let rnd = System.Random()
+        for cellRow in grid.EachRow() do
+            let mutable run = new ResizeArray<Cell>()
+            for cell in cellRow do  
+                run.Add(cell)
+                let atEasterBoundrary = isNull cell.East
+                let atNorthernBoundrary = isNull cell.North
+                let shouldCloseOut = atEasterBoundrary || (not atNorthernBoundrary && rnd.Next(2) = 0)
+                if shouldCloseOut then
+                    let mmember = run.[rnd.Next(run.Count - 1)]
+                    if not (isNull mmember.North) then
+                        mmember.Link(mmember.North) |> ignore
+                    run.Clear()
+                else    
+                    cell.Link(cell.East) |> ignore
+        grid
 

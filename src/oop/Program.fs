@@ -1,20 +1,27 @@
 ﻿
 open System
 open MazeGrid
-open Algorithms.BinaryTree
+open Algorithms //.BinaryTree
 
 
 let demoBinaryTreeGridString () =
-    let grid = Grid(10,10)
-    let newGrid = createMaze grid
+    printfn "Maze OOP version in F# - BinaryTree"
+    let grid = Grid(4,4)
+    let newGrid = BinaryTree.createMaze grid
+    newGrid.ToString()
+
+let demoSidewinderGridString () =
+    printfn "Maze OOP version in F# - Sidewinder"
+    let grid = Grid(4,4)
+    let newGrid = Sidewinder.createMaze grid
     newGrid.ToString()
     
 
 
 [<EntryPoint>]
 let main argv =
-    printfn "Maze OOP version in F#"
-    demoBinaryTreeGridString() |> printfn "%s"
+    // demoBinaryTreeGridString() |> printfn "%s"
+    demoSidewinderGridString() |> printfn "%s"
     printfn "Grid created"
     0 // return an integer exit code
 
