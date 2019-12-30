@@ -1,4 +1,5 @@
 namespace Algorithms
+
 open MazeGrid
 
 module BinaryTree =

@@ -1,5 +1,6 @@
 namespace MazeGrid
 open System.Collections.Generic
+open System.Drawing
 
 [<AllowNullLiteral>]
 type Cell (row:int, column:int) =
@@ -111,6 +112,32 @@ type Grid(rows: int, columns:int) as this =
             output <- output + top + "\n"
             output <- output + bottom + "\n"
         output
+
+    member this.ToPng(?cellSize) =
+        let cellSize = defaultArg cellSize 10
+        let imgWidth = cellSize * this.Columns + 1
+        let imgHeight = cellSize * this.Rows + 1
+
+        let background = Brushes.White
+        let wall = Pens.Black
+        let mazeImage = new Bitmap(imgWidth, imgHeight)
+        use graphics = Graphics.FromImage(mazeImage)
+        graphics.FillRectangle(background, 0, 0, imgWidth, imgHeight)
+
+        for cell in this.EachCell() do
+            let x1 = cell.Column * cellSize
+            let y1 = cell.Row * cellSize
+            let x2 = (cell.Column + 1) * cellSize
+            let y2 = (cell.Row + 1) * cellSize
+            if isNull cell.North then
+                graphics.DrawLine(wall, x1, y1, x2, y1)
+            if isNull cell.West then
+                graphics.DrawLine(wall, x1, y1, x1, y2)
+            if not (cell.IsLinked(cell.East)) then
+                graphics.DrawLine(wall, x2, y1, x2, y2)
+            if not (cell.IsLinked(cell.South)) then
+                graphics.DrawLine(wall, x1, y2, x2, y2)
+        mazeImage
 
 
 
