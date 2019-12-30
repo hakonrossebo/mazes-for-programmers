@@ -1,22 +1,15 @@
 namespace MazeGrid
 open System.Collections.Generic
-open System.Linq
-
-// module Utils =
-//     let inline isNull (x:^T when ^T : not struct) = obj.ReferenceEquals (x, null)
 
 [<AllowNullLiteral>]
 type Cell (row:int, column:int) =
     let mutable links = new Dictionary<Cell, bool>()
     member this.Row = row
     member this.Column = column
-
     member val  North : Cell = null with get, set
     member val  South : Cell = null with get, set
     member val  West : Cell = null with get, set
     member val  East : Cell = null with get, set
-
-
     member this.Neighbors 
         with get() = 
             [
@@ -98,6 +91,26 @@ type Grid(rows: int, columns:int) as this =
                 for col in [0..this.Columns - 1] do
                     yield this.Cells.[row,col]
         }
+
+    override this.ToString() =
+        let mutable output = "+"
+        for _ in [0 .. this.Columns - 1] do
+            output <- output + "---+"
+        output <- output + "\n"
+
+        for cellRow in this.EachRow() do
+            let mutable top = "|"
+            let mutable bottom = "+"
+            for cell in cellRow do  
+                let body = "   " 
+                let eastBoundrary = if cell.IsLinked(cell.East) then " " else "|"
+                top <- top + body + eastBoundrary
+                let southBoundrary = if cell.IsLinked(cell.South) then "   " else "---"
+                let corner = "+"
+                bottom <- bottom + southBoundrary + corner
+            output <- output + top + "\n"
+            output <- output + bottom + "\n"
+        output
 
 
 

@@ -3,6 +3,7 @@ module Tests
 open System
 open Xunit
 open MazeGrid
+open Algorithms.BinaryTree
 
 [<Fact>]
 let ``Init cell`` () =
@@ -22,3 +23,9 @@ let ``Init grid check cells`` () =
     Assert.True(isNull c.North)
     let s = grid.GetCell(0,0)
     Assert.False(isNull s.South)
+
+[<Fact>]
+let ``Run BinaryTree init`` () =
+    let grid = Grid(10,10)
+    let newGrid = createMaze grid
+    Assert.True(true)
