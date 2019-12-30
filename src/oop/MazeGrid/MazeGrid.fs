@@ -49,15 +49,20 @@ type Cell (row:int, column:int) =
         else
             links.ContainsKey(cell)
 
-type Grid(rows: int, columns:int) =
+type Grid(rows: int, columns:int) as this =
+    let mutable cells = Array2D.create 1 1 (Cell(1, 1))
     let rnd = System.Random()
+    do cells <- this.PrepareGrid()
+    do this.ConfigureCells()
     member this.Rows = rows
     member this.Columns = columns
     member this.Size = rows * columns
-    member val Cells : Cell [,] = null with get, set //private set?
+    member this.Cells
+        with get() = cells
+        and set(value) = cells <- value
 
     member this.PrepareGrid() =
-        this.Cells <- Array2D.init rows columns (fun x y ->  Cell(x, y))
+        Array2D.init rows columns (fun x y ->  Cell(x, y))
 
     member this.ConfigureCells() =
         this.Cells |> Array2D.iter (fun cell -> 
@@ -81,7 +86,6 @@ type Grid(rows: int, columns:int) =
         let column = rnd.Next(this.Columns)
         this.Cells.[row, column]
 
-
     member this.EachRow() =
         seq {
             for row in [0..this.Rows - 1] do
@@ -93,7 +97,6 @@ type Grid(rows: int, columns:int) =
             for row in [0..this.Rows - 1] do
                 for col in [0..this.Columns - 1] do
                     yield this.Cells.[row,col]
-
         }
 
 
