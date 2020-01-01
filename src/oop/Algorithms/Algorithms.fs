@@ -8,10 +8,7 @@ module BinaryTree =
         grid.EachCell()
         |> Seq.iter (fun (cell:Cell) ->
             let neighbors =
-                [
-                    if not (isNull cell.North) then yield cell.North
-                    if not (isNull cell.East) then yield cell.East
-                ]
+                [cell.North;cell.East] |> List.choose id
             let index = rnd.Next(List.length neighbors)
             if index < List.length neighbors then 
                 let neighbor = neighbors.[index]
@@ -26,15 +23,14 @@ module Sidewinder =
             let mutable run = new ResizeArray<Cell>()
             for cell in cellRow do  
                 run.Add(cell)
-                let atEasterBoundrary = isNull cell.East
-                let atNorthernBoundrary = isNull cell.North
+                let atEasterBoundrary = Option.isNone cell.East
+                let atNorthernBoundrary = Option.isNone cell.North
                 let shouldCloseOut = atEasterBoundrary || (not atNorthernBoundrary && rnd.Next(2) = 0)
                 if shouldCloseOut then
                     let mmember = run.[rnd.Next(run.Count - 1)]
-                    if not (isNull mmember.North) then
-                        mmember.Link(mmember.North) |> ignore
+                    mmember.North |> Option.iter (mmember.Link >> ignore)
                     run.Clear()
                 else    
-                    cell.Link(cell.East) |> ignore
+                    cell.East |> Option.iter (cell.Link >> ignore)
         grid
 

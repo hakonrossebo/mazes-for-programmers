@@ -52,9 +52,9 @@ let demoSidewinderGridPng () =
 [<EntryPoint>]
 let main argv =
     // demoBinaryTreeGridString() |> printfn "%s"
-    demoBinaryTreeDistanceGridString() |> printfn "%s"
+    // demoBinaryTreeDistanceGridString() |> printfn "%s"
     // demoBinaryTreeGridPng() |> printfn "%s"
-    // demoSidewinderGridString() |> printfn "%s"
+    demoSidewinderGridString() |> printfn "%s"
     // demoSidewinderGridPng() |> printfn "%s"
     printfn "Grid created"
     0 // return an integer exit code

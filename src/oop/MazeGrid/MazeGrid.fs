@@ -4,23 +4,16 @@ open System.Drawing
 open System.Linq
 
 /// Cell class
-[<AllowNullLiteral>]
 type Cell (row:int, column:int) =
     let mutable links = new Dictionary<Cell, bool>()
     member this.Row = row
     member this.Column = column
-    member val  North : Cell = null with get, set
-    member val  South : Cell = null with get, set
-    member val  West : Cell = null with get, set
-    member val  East : Cell = null with get, set
+    member val  North : Cell option = None with get, set
+    member val  South : Cell option = None with get, set
+    member val  West : Cell option = None with get, set
+    member val  East : Cell option = None with get, set
     member this.Neighbors 
-        with get() = 
-            [
-                if not (isNull this.North) then yield this.North
-                if not (isNull this.South) then yield this.South
-                if not (isNull this.West) then yield this.West
-                if not (isNull this.East) then yield this.East
-            ]
+        with get() = [this.North;this.South;this.West;this.East] |> List.choose id
 
     member this.Link(cell: Cell, ?bidi:bool) : Cell =
         links.[cell] <- true
@@ -39,11 +32,10 @@ type Cell (row:int, column:int) =
     member this.Links() : Cell list =
         List.ofSeq links.Keys
 
-    member this.IsLinked(cell: Cell) =
-        if isNull cell then
-            false
-        else
-            links.ContainsKey(cell)
+    member this.IsLinked(cell: Cell option ) =
+        cell
+        |> Option.map links.ContainsKey
+        |> Option.defaultValue false
 
     member this.Distances() =
         let distances = Distances(this)
@@ -89,13 +81,13 @@ type Grid(rows: int, columns:int) as this =
                 let row = cell.Row
                 let col = cell.Column
                 if row - 1 >= 0 then
-                    cell.North <- this.Cells.[row-1, col]
+                    cell.North <- Some(this.Cells.[row-1, col])
                 if row + 1 < this.Rows then
-                    cell.South <- this.Cells.[row+1, col]
+                    cell.South <- Some(this.Cells.[row+1, col])
                 if col - 1 >= 0 then
-                    cell.West <- this.Cells.[row, col - 1]
+                    cell.West <- Some(this.Cells.[row, col - 1])
                 if col + 1  < this.Columns then
-                    cell.East <- this.Cells.[row, col + 1]
+                    cell.East <- Some(this.Cells.[row, col + 1])
             )
 
     member this.GetCell(row, column) =
@@ -157,9 +149,9 @@ type Grid(rows: int, columns:int) as this =
             let y1 = cell.Row * cellSize
             let x2 = (cell.Column + 1) * cellSize
             let y2 = (cell.Row + 1) * cellSize
-            if isNull cell.North then
+            if Option.isNone cell.North then
                 graphics.DrawLine(wall, x1, y1, x2, y1)
-            if isNull cell.West then
+            if Option.isNone cell.West then
                 graphics.DrawLine(wall, x1, y1, x1, y2)
             if not (cell.IsLinked(cell.East)) then
                 graphics.DrawLine(wall, x2, y1, x2, y2)
