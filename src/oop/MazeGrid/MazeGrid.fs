@@ -59,6 +59,23 @@ and Distances(root:Cell) =
     member this.Cells = base.Keys |> Seq.toList
     member this.SetDistance(cell:Cell, distance:int) = 
         base.[cell] = distance |> ignore
+    member this.PathTo(goal:Cell) =
+        let mutable current = goal
+        let breadcrumbs = Distances(this.Root)
+        breadcrumbs.[current] <- this.[current]
+        while current <> root do
+            current.Links()
+            |> List.filter (fun neighbor -> this.[neighbor] < this.[current])
+            |> List.tryHead
+            |> Option.iter (fun neighbor ->
+                                if not (breadcrumbs.ContainsKey(neighbor)) then
+                                    breadcrumbs.Add(neighbor, this.[neighbor])
+                                else
+                                    breadcrumbs.[neighbor] <- this.[neighbor]
+                                current <- neighbor
+                            )
+        breadcrumbs
+
 
 /// Grid class
 type Grid(rows: int, columns:int) as this =
@@ -171,20 +188,4 @@ type DistanceGrid(rows:int, columns:int) =
                         " "
                     )
                     |> Option.defaultValue " "
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

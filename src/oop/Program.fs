@@ -15,7 +15,14 @@ let demoBinaryTreeDistanceGridString () =
     let start = newGrid.GetCell(0, 0)
     let distances = start.Distances()
     newGrid.Distances <- Some(distances)
+    newGrid.ToString() |> printfn "%s"
+
+    printfn "Path from northwest corner to southwest"
+    newGrid.Distances <- Some(distances.PathTo(newGrid.GetCell(newGrid.Rows - 1, 0)))
     newGrid.ToString()
+
+
+
 
 let demoBinaryTreeGridPng () =
     printfn "Maze OOP version in F# - BinaryTree Png"
