@@ -3,7 +3,7 @@ namespace Algorithms
 open MazeGrid
 
 module BinaryTree =
-    let createMaze (grid:Grid) : Grid = 
+    let createMaze (grid:'T) : 'T when 'T :> Grid = 
         let rnd = System.Random()
         grid.EachCell()
         |> Seq.iter (fun (cell:Cell) ->
@@ -20,7 +20,7 @@ module BinaryTree =
         grid
 
 module Sidewinder =
-    let createMaze (grid:Grid) : Grid = 
+    let createMaze (grid:'T) : 'T when 'T :> Grid = 
         let rnd = System.Random()
         for cellRow in grid.EachRow() do
             let mutable run = new ResizeArray<Cell>()

@@ -8,6 +8,15 @@ let demoBinaryTreeGridString () =
     let newGrid = BinaryTree.createMaze grid
     newGrid.ToString()
 
+let demoBinaryTreeDistanceGridString () =
+    printfn "Maze OOP version in F# - BinaryTree Distance"
+    let grid = DistanceGrid(10, 10)
+    let newGrid = BinaryTree.createMaze grid
+    let start = newGrid.GetCell(0, 0)
+    let distances = start.Distances()
+    newGrid.Distances <- distances
+    newGrid.ToString()
+
 let demoBinaryTreeGridPng () =
     printfn "Maze OOP version in F# - BinaryTree Png"
     let grid = Grid(20, 20)
@@ -43,7 +52,8 @@ let demoSidewinderGridPng () =
 [<EntryPoint>]
 let main argv =
     // demoBinaryTreeGridString() |> printfn "%s"
-    demoBinaryTreeGridPng() |> printfn "%s"
+    demoBinaryTreeDistanceGridString() |> printfn "%s"
+    // demoBinaryTreeGridPng() |> printfn "%s"
     // demoSidewinderGridString() |> printfn "%s"
     // demoSidewinderGridPng() |> printfn "%s"
     printfn "Grid created"

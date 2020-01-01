@@ -1,7 +1,9 @@
 namespace MazeGrid
 open System.Collections.Generic
 open System.Drawing
+open System.Linq
 
+/// Cell class
 [<AllowNullLiteral>]
 type Cell (row:int, column:int) =
     let mutable links = new Dictionary<Cell, bool>()
@@ -43,6 +45,30 @@ type Cell (row:int, column:int) =
         else
             links.ContainsKey(cell)
 
+    member this.Distances() =
+        let distances = Distances(this)
+        let mutable frontier = ResizeArray<Cell>() 
+        frontier.Add(this)
+        while frontier.Any() do
+            let newFrontier = ResizeArray<Cell>()
+            for cell in frontier do
+                for linked in cell.Links() do
+                    if not (distances.ContainsKey(linked)) then
+                        distances.Add(linked, distances.[cell] + 1)
+                        newFrontier.Add(linked)
+            frontier <- newFrontier
+        distances
+
+/// Distances class
+and Distances(root:Cell) =
+    inherit Dictionary<Cell, int>()
+    do base.[root] <- 0
+    member this.Root = root
+    member this.Cells = base.Keys |> Seq.toList
+    member this.SetDistance(cell:Cell, distance:int) = 
+        base.[cell] = distance |> ignore
+
+/// Grid class
 type Grid(rows: int, columns:int) as this =
     let mutable cells = Array2D.create 1 1 (Cell(1, 1))
     let rnd = System.Random()
@@ -92,6 +118,8 @@ type Grid(rows: int, columns:int) as this =
                 for col in [0..this.Columns - 1] do
                     yield this.Cells.[row,col]
         }
+    abstract member ContensOf: Cell -> string
+    default this.ContensOf cell = " "
 
     override this.ToString() =
         let mutable output = "+"
@@ -103,7 +131,7 @@ type Grid(rows: int, columns:int) as this =
             let mutable top = "|"
             let mutable bottom = "+"
             for cell in cellRow do  
-                let body = "   " 
+                let body = sprintf " %s " (this.ContensOf cell)
                 let eastBoundrary = if cell.IsLinked(cell.East) then " " else "|"
                 top <- top + body + eastBoundrary
                 let southBoundrary = if cell.IsLinked(cell.South) then "   " else "---"
@@ -138,6 +166,18 @@ type Grid(rows: int, columns:int) as this =
             if not (cell.IsLinked(cell.South)) then
                 graphics.DrawLine(wall, x1, y2, x2, y2)
         mazeImage
+
+/// DistanceGrid class
+type DistanceGrid(rows:int, columns:int) =
+    inherit Grid(rows, columns)
+    let nullCell = Cell(1,1)
+    member val Distances:Distances = Distances(nullCell) with get, set
+    override this.ContensOf(cell:Cell) =
+        if this.Distances.ContainsKey(cell) then   
+            this.Distances.[cell].ToString().Last().ToString()
+        else
+            " "
+
 
 
 
