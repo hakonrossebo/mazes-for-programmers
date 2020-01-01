@@ -62,7 +62,7 @@ and Distances(root:Cell) =
 
 /// Grid class
 type Grid(rows: int, columns:int) as this =
-    let mutable cells = Array2D.create 1 1 (Cell(1, 1))
+    let mutable cells = array2D []
     let rnd = System.Random()
     do cells <- this.PrepareGrid()
     do this.ConfigureCells()
@@ -162,13 +162,18 @@ type Grid(rows: int, columns:int) as this =
 /// DistanceGrid class
 type DistanceGrid(rows:int, columns:int) =
     inherit Grid(rows, columns)
-    let nullCell = Cell(1,1)
-    member val Distances:Distances = Distances(nullCell) with get, set
+    member val Distances:Distances option = None with get, set
     override this.ContensOf(cell:Cell) =
-        if this.Distances.ContainsKey(cell) then   
-            this.Distances.[cell].ToString().Last().ToString()
-        else
-            " "
+        this.Distances
+        |> Option.map (fun distances ->
+                    if distances.ContainsKey(cell) then   
+                        distances.[cell].ToString().Last().ToString()
+                    else
+                        " "
+                    )
+                    |> Option.defaultValue " "
+
+
 
 
 
