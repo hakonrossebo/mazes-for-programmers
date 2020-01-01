@@ -114,10 +114,9 @@ type Grid(rows: int, columns:int) as this =
     default this.ContensOf cell = " "
 
     override this.ToString() =
-        let mutable output = "+"
-        for _ in [0 .. this.Columns - 1] do
-            output <- output + "---+"
-        output <- output + "\n"
+        let mutable output = "+" + 
+                                ("---+" |> Seq.replicate this.Columns |> String.concat "") + 
+                                "\n"
 
         for cellRow in this.EachRow() do
             let mutable top = "|"
