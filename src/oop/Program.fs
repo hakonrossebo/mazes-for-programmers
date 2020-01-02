@@ -2,6 +2,16 @@
 open Algorithms
 open System.Diagnostics
 
+
+let timeOperation<'T> (func: unit -> 'T): 'T =
+    let timer = Stopwatch()
+    timer.Start()
+    let returnValue = func()
+    timer.Stop()
+    printfn "Time elapsed: %d ms" timer.ElapsedMilliseconds 
+    returnValue
+
+
 let demoBinaryTreeGridString () =
     printfn "Maze OOP version in F# - BinaryTree"
     let grid = Grid(20, 20)
@@ -19,7 +29,7 @@ let demoBinaryTreeDistanceGridString () =
 
     printfn "Path from northwest corner to southwest"
     newGrid.Distances <- Some(distances.PathTo(newGrid.GetCell(newGrid.Rows - 1, 0)))
-    newGrid.ToString()
+    newGrid.ToString()|> printfn "%s"
 
 
 
@@ -58,8 +68,9 @@ let demoSidewinderGridPng () =
 
 [<EntryPoint>]
 let main argv =
+
     // demoBinaryTreeGridString() |> printfn "%s"
-    demoBinaryTreeDistanceGridString() |> printfn "%s"
+    demoBinaryTreeDistanceGridString |> timeOperation |> ignore
     // demoBinaryTreeGridPng() |> printfn "%s"
     // demoSidewinderGridString() |> printfn "%s"
     // demoSidewinderGridPng() |> printfn "%s"

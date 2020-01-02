@@ -1,45 +1,43 @@
 namespace MazeGrid
+
 open System.Collections.Generic
 open System.Drawing
 open System.Linq
+open System.Text
 
 /// Cell class
-type Cell (row:int, column:int) =
+type Cell(row: int, column: int) =
     let mutable links = new Dictionary<Cell, bool>()
     member this.Row = row
     member this.Column = column
-    member val  North : Cell option = None with get, set
-    member val  South : Cell option = None with get, set
-    member val  West : Cell option = None with get, set
-    member val  East : Cell option = None with get, set
-    member this.Neighbors 
-        with get() = [this.North;this.South;this.West;this.East] |> List.choose id
+    member val North: Cell option = None with get, set
+    member val South: Cell option = None with get, set
+    member val West: Cell option = None with get, set
+    member val East: Cell option = None with get, set
+    member this.Neighbors = [ this.North; this.South; this.West; this.East ] |> List.choose id
 
-    member this.Link(cell: Cell, ?bidi:bool) : Cell =
+    member this.Link(cell: Cell, ?bidi: bool): Cell =
         links.[cell] <- true
         let bidi = defaultArg bidi true
-        if bidi then
-            cell.Link(this, false) |> ignore
+        if bidi then cell.Link(this, false) |> ignore
         this
 
-    member this.Unlink(cell: Cell, ?bidi:bool) : Cell =
+    member this.Unlink(cell: Cell, ?bidi: bool): Cell =
         links.Remove(cell) |> ignore
         let bidi = defaultArg bidi true
-        if bidi then
-            cell.Unlink(this, false) |> ignore
+        if bidi then cell.Unlink(this, false) |> ignore
         this
 
-    member this.Links() : Cell list =
-        List.ofSeq links.Keys
+    member this.Links(): Cell list = List.ofSeq links.Keys
 
-    member this.IsLinked(cell: Cell option ) =
+    member this.IsLinked(cell: Cell option) =
         cell
         |> Option.map links.ContainsKey
         |> Option.defaultValue false
 
     member this.Distances() =
         let distances = Distances(this)
-        let mutable frontier = ResizeArray<Cell>() 
+        let mutable frontier = ResizeArray<Cell>()
         frontier.Add(this)
         while frontier.Any() do
             let newFrontier = ResizeArray<Cell>()
@@ -52,14 +50,13 @@ type Cell (row:int, column:int) =
         distances
 
 /// Distances class
-and Distances(root:Cell) =
+and Distances(root: Cell) =
     inherit Dictionary<Cell, int>()
-    do base.[root] <- 0
+    do ``base``.[root] <- 0
     member this.Root = root
     member this.Cells = base.Keys |> Seq.toList
-    member this.SetDistance(cell:Cell, distance:int) = 
-        base.[cell] = distance |> ignore
-    member this.PathTo(goal:Cell) =
+    member this.SetDistance(cell: Cell, distance: int) = ``base``.[cell] = distance |> ignore
+    member this.PathTo(goal: Cell) =
         let mutable current = goal
         let breadcrumbs = Distances(this.Root)
         breadcrumbs.[current] <- this.[current]
@@ -68,17 +65,15 @@ and Distances(root:Cell) =
             |> List.filter (fun neighbor -> this.[neighbor] < this.[current])
             |> List.tryHead
             |> Option.iter (fun neighbor ->
-                                if not (breadcrumbs.ContainsKey(neighbor)) then
-                                    breadcrumbs.Add(neighbor, this.[neighbor])
-                                else
-                                    breadcrumbs.[neighbor] <- this.[neighbor]
-                                current <- neighbor
-                            )
+                if not (breadcrumbs.ContainsKey(neighbor))
+                then breadcrumbs.Add(neighbor, this.[neighbor])
+                else breadcrumbs.[neighbor] <- this.[neighbor]
+                current <- neighbor)
         breadcrumbs
 
 
 /// Grid class
-type Grid(rows: int, columns:int) as this =
+type Grid(rows: int, columns: int) as this =
     let mutable cells = array2D []
     let rnd = System.Random()
     do cells <- this.PrepareGrid()
@@ -86,29 +81,24 @@ type Grid(rows: int, columns:int) as this =
     member this.Rows = rows
     member this.Columns = columns
     member this.Size = rows * columns
-    member this.Cells
-        with get() = cells
-        and set(value) = cells <- value
 
-    member this.PrepareGrid() =
-        Array2D.init rows columns (fun x y ->  Cell(x, y))
+    member this.Cells
+        with get () = cells
+        and set (value) = cells <- value
+
+    member this.PrepareGrid() = Array2D.init rows columns (fun x y -> Cell(x, y))
 
     member this.ConfigureCells() =
-        this.Cells |> Array2D.iter (fun cell -> 
-                let row = cell.Row
-                let col = cell.Column
-                if row - 1 >= 0 then
-                    cell.North <- Some(this.Cells.[row-1, col])
-                if row + 1 < this.Rows then
-                    cell.South <- Some(this.Cells.[row+1, col])
-                if col - 1 >= 0 then
-                    cell.West <- Some(this.Cells.[row, col - 1])
-                if col + 1  < this.Columns then
-                    cell.East <- Some(this.Cells.[row, col + 1])
-            )
+        this.Cells
+        |> Array2D.iter (fun cell ->
+            let row = cell.Row
+            let col = cell.Column
+            if row - 1 >= 0 then cell.North <- Some(this.Cells.[row - 1, col])
+            if row + 1 < this.Rows then cell.South <- Some(this.Cells.[row + 1, col])
+            if col - 1 >= 0 then cell.West <- Some(this.Cells.[row, col - 1])
+            if col + 1 < this.Columns then cell.East <- Some(this.Cells.[row, col + 1]))
 
-    member this.GetCell(row, column) =
-        this.Cells.[row, column]
+    member this.GetCell(row, column) = this.Cells.[row, column]
 
     member this.RandomCell() =
         let row = rnd.Next(this.Rows)
@@ -117,37 +107,38 @@ type Grid(rows: int, columns:int) as this =
 
     member this.EachRow() =
         seq {
-            for row in [0..this.Rows - 1] do
-                    yield this.Cells.[row,*]
+            for row in 0 .. this.Rows - 1 do
+                yield this.Cells.[row, *]
         }
 
     member this.EachCell() =
         seq {
-            for row in [0..this.Rows - 1] do
-                for col in [0..this.Columns - 1] do
-                    yield this.Cells.[row,col]
+            for row in 0 .. this.Rows - 1 do
+                for col in 0 .. this.Columns - 1 do
+                    yield this.Cells.[row, col]
         }
-    abstract member ContensOf: Cell -> string
+
+    abstract ContensOf: Cell -> string
     default this.ContensOf cell = " "
 
-    override this.ToString() =
-        let mutable output = "+" + 
-                                ("---+" |> Seq.replicate this.Columns |> String.concat "") + 
-                                "\n"
 
+    override this.ToString() =
+        let corner = "+"
+        let sbGrid = StringBuilder()
+        sbGrid.AppendLine("+" + ("---+" |> Seq.replicate this.Columns |> String.concat "")) |> ignore
         for cellRow in this.EachRow() do
-            let mutable top = "|"
-            let mutable bottom = "+"
-            for cell in cellRow do  
+            let sbGridLineTop = StringBuilder("|")
+            let sbGridLineBottom = StringBuilder("+")
+            for cell in cellRow do
                 let body = sprintf " %s " (this.ContensOf cell)
                 let eastBoundrary = if cell.IsLinked(cell.East) then " " else "|"
-                top <- top + body + eastBoundrary
                 let southBoundrary = if cell.IsLinked(cell.South) then "   " else "---"
-                let corner = "+"
-                bottom <- bottom + southBoundrary + corner
-            output <- output + top + "\n"
-            output <- output + bottom + "\n"
-        output
+                sbGridLineTop.Append(body + eastBoundrary) |> ignore
+                sbGridLineBottom.Append(southBoundrary + corner) |> ignore
+            sbGrid.AppendLine(sbGridLineTop.ToString()) |> ignore
+            sbGrid.AppendLine(sbGridLineBottom.ToString()) |> ignore
+        sbGrid.ToString()
+
 
     member this.ToPng(?cellSize) =
         let cellSize = defaultArg cellSize 10
@@ -165,27 +156,20 @@ type Grid(rows: int, columns:int) as this =
             let y1 = cell.Row * cellSize
             let x2 = (cell.Column + 1) * cellSize
             let y2 = (cell.Row + 1) * cellSize
-            if Option.isNone cell.North then
-                graphics.DrawLine(wall, x1, y1, x2, y1)
-            if Option.isNone cell.West then
-                graphics.DrawLine(wall, x1, y1, x1, y2)
-            if not (cell.IsLinked(cell.East)) then
-                graphics.DrawLine(wall, x2, y1, x2, y2)
-            if not (cell.IsLinked(cell.South)) then
-                graphics.DrawLine(wall, x1, y2, x2, y2)
+            if Option.isNone cell.North then graphics.DrawLine(wall, x1, y1, x2, y1)
+            if Option.isNone cell.West then graphics.DrawLine(wall, x1, y1, x1, y2)
+            if not (cell.IsLinked(cell.East)) then graphics.DrawLine(wall, x2, y1, x2, y2)
+            if not (cell.IsLinked(cell.South)) then graphics.DrawLine(wall, x1, y2, x2, y2)
         mazeImage
 
 /// DistanceGrid class
-type DistanceGrid(rows:int, columns:int) =
+type DistanceGrid(rows: int, columns: int) =
     inherit Grid(rows, columns)
-    member val Distances:Distances option = None with get, set
-    override this.ContensOf(cell:Cell) =
+    member val Distances: Distances option = None with get, set
+    override this.ContensOf(cell: Cell) =
         this.Distances
         |> Option.map (fun distances ->
-                    if distances.ContainsKey(cell) then   
-                        distances.[cell].ToString().Last().ToString()
-                    else
-                        " "
-                    )
-                    |> Option.defaultValue " "
-
+            if distances.ContainsKey(cell)
+            then distances.[cell].ToString().Last().ToString()
+            else " ")
+        |> Option.defaultValue " "
