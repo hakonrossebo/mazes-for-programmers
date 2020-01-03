@@ -49,7 +49,7 @@ let demoBinaryTreeGridPng () =
 
 let demoSidewinderGridString () =
     printfn "Maze OOP version in F# - Sidewinder"
-    let grid = Grid(20, 20)
+    let grid = Grid(10, 10)
     let newGrid = Sidewinder.createMaze grid
     newGrid.ToString()
     
@@ -70,9 +70,9 @@ let demoSidewinderGridPng () =
 let main argv =
 
     // demoBinaryTreeGridString() |> printfn "%s"
-    demoBinaryTreeDistanceGridString |> timeOperation |> ignore
+    // demoBinaryTreeDistanceGridString |> timeOperation |> ignore
     // demoBinaryTreeGridPng() |> printfn "%s"
-    // demoSidewinderGridString() |> printfn "%s"
+    demoSidewinderGridString() |> printfn "%s"
     // demoSidewinderGridPng() |> printfn "%s"
     printfn "Grid created"
     0 // return an integer exit code

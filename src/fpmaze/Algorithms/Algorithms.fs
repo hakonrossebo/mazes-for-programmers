@@ -4,6 +4,8 @@ open MazeGrid
 
 module BinaryTree =
     let createMaze (grid:Grid) =
+        let getCell = Grid.getCell grid
+        let linkCells = Grid.linkCells grid
         let rnd = System.Random()
         grid
         |> Grid.eachCell
@@ -12,13 +14,15 @@ module BinaryTree =
                 [cell.north;cell.east] |> List.choose id
             let index = rnd.Next(List.length neighbors)
             if index < List.length neighbors then 
-                let neighbor = neighbors.[index] |> (Grid.getCell grid)
-                Grid.linkCells grid cell neighbor
+                let neighbor = neighbors.[index] |> getCell
+                linkCells cell neighbor
             )
         grid
 
 module Sidewinder =
     let createMaze (grid:Grid) =
+        let getCell = Grid.getCell grid
+        let linkCells = Grid.linkCells grid
         let rnd = System.Random()
         for cellRow in Grid.eachRow grid do
             let mutable run = new ResizeArray<Cell>()
@@ -29,14 +33,12 @@ module Sidewinder =
                 let shouldCloseOut = atEasterBoundrary || (not atNorthernBoundrary && rnd.Next(2) = 0)
                 if shouldCloseOut then
                     let mmember = run.[rnd.Next(run.Count - 1)]
-                    // mmember.north |> Option.iter (mmember.Link >> ignore)
                     mmember.north 
                     |> Option.map (Grid.getCell grid) 
-                    |> Option.iter (fun mn -> Grid.linkCells grid mmember mn)
+                    |> Option.iter (linkCells (getCell mmember.pos))
                     run.Clear()
                 else    
-                    // cell.East |> Option.iter (cell.Link >> ignore)
                     cell.east 
-                    |> Option.iter (fun c -> Grid.linkCells grid cell (Grid.getCell grid c))
+                    |> Option.map (Grid.getCell grid)
+                    |> Option.iter (linkCells (getCell cell.pos))
         grid
-
