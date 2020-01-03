@@ -1,9 +1,12 @@
 namespace MazeGrid
 
+open System.Collections.Generic
 open System.Drawing
 open System.Text
+open System.Linq
 
 type Position = int * int
+
 type Cell = {
     pos: Position
     north: Position option
@@ -13,6 +16,8 @@ type Cell = {
     links: Position Set
 }
 type Grid = Cell [,]
+
+type Distances = Dictionary<Cell, int>
 
 module Grid =
     let createGrid rows columns : Grid =
@@ -59,7 +64,16 @@ module Grid =
         grid.[cell1Row, cell1Col] <- cell1new
         grid.[cell2Row, cell2Col] <- cell2new
 
-    let toString(grid:Grid) =
+    let contensOf (distances: Distances option) (cell: Cell) =
+        distances
+        |> Option.map (fun distances ->
+            if distances.ContainsKey(cell)
+            then distances.[cell].ToString().Last().ToString()
+            else " ")
+        |> Option.defaultValue " "
+
+    let toString (distances: Distances option) (grid:Grid) =
+        let contensOf = contensOf distances
         let cols = Array2D.length2 grid
         let corner = "+"
         let sbGrid = StringBuilder()
@@ -68,8 +82,7 @@ module Grid =
             let sbGridLineTop = StringBuilder("|")
             let sbGridLineBottom = StringBuilder("+")
             for cell in cellRow do
-                // let body = sprintf " %s " (this.ContensOf cell)
-                let body = sprintf "   "
+                let body = sprintf " %s " (contensOf cell)
                 let eastBoundrary = if isLinked cell cell.east then " " else "|"
                 let southBoundrary = if isLinked cell cell.south then "   " else "---"
                 sbGridLineTop.Append(body + eastBoundrary) |> ignore
@@ -99,4 +112,36 @@ module Grid =
             if not (isLinked cell cell.east) then graphics.DrawLine(wall, x2, y1, x2, y2)
             if not (isLinked cell cell.south) then graphics.DrawLine(wall, x1, y2, x2, y2)
         mazeImage
+
+    let initDistances (initCell:Cell) = 
+        let distances = Distances()
+        distances.Add(initCell, 0)
+        distances
+
+    let distances (grid: Grid) (fromCell:Cell) =
+        let distances = initDistances fromCell
+        let mutable frontier = ResizeArray<Cell>()
+        frontier.Add(fromCell)
+        while frontier.Any() do
+            let newFrontier = ResizeArray<Cell>()
+            for cell in frontier do
+                let links = cell.links
+                            |> Set.toSeq
+                            |> Seq.map (getCell grid)
+                for linked in links do
+                    if not (distances.ContainsKey(linked)) then
+                        distances.Add(linked, distances.[cell] + 1)
+                        newFrontier.Add(linked)
+            frontier <- newFrontier
+        distances
+
+
+
+
+
+
+
+
+
+
 

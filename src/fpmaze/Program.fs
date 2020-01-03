@@ -7,7 +7,7 @@ let demoBinaryTreeGridString () =
     printfn "Maze FP version in F# - BinaryTree"
     let grid = Grid.createGrid 10 10
     let newGrid = BinaryTree.createMaze grid
-    newGrid |> Grid.toString
+    newGrid |> Grid.toString None
 
 let demoBinaryTreeGridPng () =
     printfn "Maze FP version in F# - BinaryTree Png"
@@ -21,11 +21,23 @@ let demoBinaryTreeGridPng () =
     p.Start() |> ignore
     newGrid.ToString()
 
+let demoBinaryTreeDistanceGridString () =
+    printfn "Maze FP version in F# - BinaryTree Distance"
+    let grid = Grid.createGrid 10 10
+    let newGrid = BinaryTree.createMaze grid
+    let start = Grid.getCell newGrid (0,0)
+    let distances = Grid.distances newGrid start
+    newGrid |> Grid.toString (Some (distances)) |> printfn "%s"
+
+    // printfn "Path from northwest corner to southwest"
+    // newGrid.Distances <- Some(distances.PathTo(newGrid.GetCell(newGrid.Rows - 1, 0)))
+    // newGrid.ToString()|> printfn "%s"
+
 let demoSidewinderGridString () =
     printfn "Maze FP version in F# - Sidewinder"
     let grid = Grid.createGrid 10 10
     let newGrid = Sidewinder.createMaze grid
-    newGrid |> Grid.toString
+    newGrid |> Grid.toString None
     
 let demoSidewinderGridPng () =
     printfn "Maze FP version in F# - Sidewinder Png"
@@ -43,8 +55,9 @@ let demoSidewinderGridPng () =
 let main argv =
     // demoBinaryTreeGridString() |> printfn "%s"
     // demoBinaryTreeGridPng() |> printfn "%s"
+    demoBinaryTreeDistanceGridString |> timeOperation |> ignore
     // demoSidewinderGridString() |> printfn "%s"
-    demoSidewinderGridPng() |> printfn "%s"
+    // demoSidewinderGridPng() |> printfn "%s"
     printfn "Grid created"
     0 // return an integer exit code
 
