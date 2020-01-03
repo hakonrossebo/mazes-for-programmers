@@ -124,20 +124,22 @@ module Grid =
 
     let distances (grid: Grid) (fromCell:Cell) =
         let distances = initDistances fromCell
-        let mutable frontier = ResizeArray<Cell>()
-        frontier.Add(fromCell)
-        while frontier.Any() do
-            let newFrontier = ResizeArray<Cell>()
-            for cell in frontier do
-                let links = cell.links
-                            |> Set.toSeq
-                            |> Seq.map (getCell grid)
-                for linked in links do
-                    if not (distances.ContainsKey(linked)) then
-                        distances.Add(linked, distances.[cell] + 1)
-                        newFrontier.Add(linked)
-            frontier <- newFrontier
-        distances
+        let rec nextFrontier frontier =
+            match frontier with 
+            | [] -> distances
+            | f ->
+                let newFrontier = [
+                    for cell in f do
+                        let links = cell.links
+                                    |> Set.toSeq
+                                    |> Seq.map (getCell grid)
+                        for linked in links do
+                            if not (distances.ContainsKey(linked)) then
+                                distances.Add(linked, distances.[cell] + 1)
+                                yield linked
+                ]
+                nextFrontier newFrontier
+        nextFrontier [fromCell]
 
     let pathTo (grid:Grid) (distances:Distances) (root: Cell) (goal: Cell) =
         let breadcrumbs = initDistances root
