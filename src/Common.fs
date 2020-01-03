@@ -9,3 +9,8 @@ let timeOperation<'T> (func: unit -> 'T): 'T =
     timer.Stop()
     printfn "Time elapsed: %d ms" timer.ElapsedMilliseconds 
     returnValue
+
+let ifNone f =
+  function
+  | Some _ -> ()
+  | None -> f ()

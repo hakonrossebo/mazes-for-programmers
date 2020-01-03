@@ -8,7 +8,7 @@ module BinaryTree =
         let linkCells = Grid.linkCells grid
         let rnd = System.Random()
         grid
-        |> Grid.eachCell
+        |> Grid.toSeq
         |> Seq.iter (fun (cell:Cell) ->
             let neighbors =
                 [cell.north;cell.east] |> List.choose id

@@ -4,6 +4,7 @@ open System.Collections.Generic
 open System.Drawing
 open System.Text
 open System.Linq
+open Common
 
 type Position = int * int
 
@@ -52,6 +53,9 @@ module Grid =
                 for col in 0 .. (Array2D.length2 grid) - 1 do
                     yield grid.[row, col]
         }
+    
+    let toSeq (grid: Cell [,]) = grid |> Seq.cast<Cell> 
+
     let linkCells(grid:Grid) (cell1:Cell) (cell2:Cell) =
         let cell1new = cell1.links
                         |> Set.add cell2.pos
@@ -107,8 +111,8 @@ module Grid =
             let y1 = row * cellSize
             let x2 = (col + 1) * cellSize
             let y2 = (row + 1) * cellSize
-            if Option.isNone cell.north then graphics.DrawLine(wall, x1, y1, x2, y1)
-            if Option.isNone cell.west then graphics.DrawLine(wall, x1, y1, x1, y2)
+            cell.north |> ifNone (fun _ -> graphics.DrawLine(wall, x1, y1, x2, y1))
+            cell.west |> ifNone (fun _ -> graphics.DrawLine(wall, x1, y1, x1, y2))
             if not (isLinked cell cell.east) then graphics.DrawLine(wall, x2, y1, x2, y2)
             if not (isLinked cell cell.south) then graphics.DrawLine(wall, x1, y2, x2, y2)
         mazeImage
@@ -136,22 +140,23 @@ module Grid =
         distances
 
     let pathTo (grid:Grid) (distances:Distances) (root: Cell) (goal: Cell) =
-        let mutable current = goal
         let breadcrumbs = initDistances root
-        breadcrumbs.[current] <- distances.[current]
-        while current <> root do
-            let links = current.links
-                        |> Set.toSeq
-                        |> Seq.map (getCell grid)
-            links
-            |> Seq.filter (fun neighbor -> distances.[neighbor] < distances.[current])
-            |> Seq.tryHead
-            |> Option.iter (fun neighbor ->
-                if not (breadcrumbs.ContainsKey(neighbor))
-                then breadcrumbs.Add(neighbor, distances.[neighbor])
-                else breadcrumbs.[neighbor] <- distances.[neighbor]
-                current <- neighbor)
-        breadcrumbs
+        breadcrumbs.[goal] <- distances.[goal]
+        let rec findNextBreadcrumb current =
+            if current = root then
+                breadcrumbs
+            else
+                let link = current.links
+                            |> Set.toSeq
+                            |> Seq.map (getCell grid)
+                            |> Seq.filter (fun neighbor -> distances.[neighbor] < distances.[current])
+                            |> Seq.tryHead
+                match link with 
+                | None -> breadcrumbs
+                | Some neighbor ->
+                    breadcrumbs.[neighbor] <- distances.[neighbor]
+                    findNextBreadcrumb neighbor
+        findNextBreadcrumb goal
 
 
 
