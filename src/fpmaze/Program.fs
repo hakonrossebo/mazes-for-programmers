@@ -28,10 +28,11 @@ let demoBinaryTreeDistanceGridString () =
     let start = Grid.getCell newGrid (0,0)
     let distances = Grid.distances newGrid start
     newGrid |> Grid.toString (Some (distances)) |> printfn "%s"
+    printfn "Path from northwest corner to southwest"
+    let goal = Grid.getCell newGrid (Array2D.length1 newGrid - 1, 0)
+    let pathDistances = Grid.pathTo newGrid distances start goal
+    newGrid |> Grid.toString (Some (pathDistances)) |> printfn "%s"
 
-    // printfn "Path from northwest corner to southwest"
-    // newGrid.Distances <- Some(distances.PathTo(newGrid.GetCell(newGrid.Rows - 1, 0)))
-    // newGrid.ToString()|> printfn "%s"
 
 let demoSidewinderGridString () =
     printfn "Maze FP version in F# - Sidewinder"

@@ -135,6 +135,23 @@ module Grid =
             frontier <- newFrontier
         distances
 
+    let pathTo (grid:Grid) (distances:Distances) (root: Cell) (goal: Cell) =
+        let mutable current = goal
+        let breadcrumbs = initDistances root
+        breadcrumbs.[current] <- distances.[current]
+        while current <> root do
+            let links = current.links
+                        |> Set.toSeq
+                        |> Seq.map (getCell grid)
+            links
+            |> Seq.filter (fun neighbor -> distances.[neighbor] < distances.[current])
+            |> Seq.tryHead
+            |> Option.iter (fun neighbor ->
+                if not (breadcrumbs.ContainsKey(neighbor))
+                then breadcrumbs.Add(neighbor, distances.[neighbor])
+                else breadcrumbs.[neighbor] <- distances.[neighbor]
+                current <- neighbor)
+        breadcrumbs
 
 
 
