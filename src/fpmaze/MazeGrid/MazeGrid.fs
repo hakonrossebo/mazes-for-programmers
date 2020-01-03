@@ -57,12 +57,8 @@ module Grid =
     let toSeq (grid: Cell [,]) = grid |> Seq.cast<Cell> 
 
     let linkCells(grid:Grid) (cell1:Cell) (cell2:Cell) =
-        let cell1new = cell1.links
-                        |> Set.add cell2.pos
-                        |> fun links -> {cell1 with links = links}
-        let cell2new = cell2.links
-                        |> Set.add cell1.pos
-                        |> fun links -> {cell2 with links = links}
+        let cell1new =  {cell1 with links = Set.add cell2.pos cell1.links}
+        let cell2new =  {cell2 with links = Set.add cell1.pos cell2.links}
         let cell1Row, cell1Col = cell1.pos
         let cell2Row, cell2Col = cell2.pos
         grid.[cell1Row, cell1Col] <- cell1new
