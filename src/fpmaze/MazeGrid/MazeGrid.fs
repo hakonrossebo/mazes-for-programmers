@@ -157,6 +157,9 @@ module Distances =
                     findNextBreadcrumb neighbor
         findNextBreadcrumb goal
 
+    let max (distances:Distances) = 
+        distances |> Seq.maxBy (fun x -> x.Value) |> (fun x -> (x.Key, x.Value))
+
 
 
 

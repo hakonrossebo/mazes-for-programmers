@@ -33,6 +33,23 @@ let demoBinaryTreeDistanceGridString () =
     let pathDistances = Distances.pathTo newGrid distances start goal
     newGrid |> Grid.toString (Some (pathDistances)) |> printfn "%s"
 
+let demoLongestPathBinaryTreeDistanceGridString () =
+    printfn "Maze FP version in F# - BinaryTree Longest path Distance"
+    let grid = Grid.createGrid 5 5
+    let newGrid = BinaryTree.createMaze grid
+    let start = Grid.getCell newGrid (0,0)
+    let distances = Distances.distances newGrid start
+    let newStart, distance = Distances.max distances
+
+    let newDistances = Distances.distances newGrid (Grid.getCell newGrid newStart.pos)
+    let goal, distance = Distances.max newDistances
+
+    newGrid |> Grid.toString (Some (distances)) |> printfn "%s"
+    printfn "Path from northwest corner to southwest"
+    // let goal = Grid.getCell newGrid (Array2D.length1 newGrid - 1, 0)
+    let pathDistances = Distances.pathTo newGrid newDistances newStart goal
+    newGrid |> Grid.toString (Some (pathDistances)) |> printfn "%s"
+
 
 let demoSidewinderGridString () =
     printfn "Maze FP version in F# - Sidewinder"
@@ -56,7 +73,8 @@ let demoSidewinderGridPng () =
 let main argv =
     // demoBinaryTreeGridString() |> printfn "%s"
     // demoBinaryTreeGridPng() |> printfn "%s"
-    demoBinaryTreeDistanceGridString |> timeOperation |> ignore
+    // demoBinaryTreeDistanceGridString |> timeOperation |> ignore
+    demoLongestPathBinaryTreeDistanceGridString |> timeOperation |> ignore
     // demoSidewinderGridString() |> printfn "%s"
     // demoSidewinderGridPng() |> printfn "%s"
     printfn "Grid created"
