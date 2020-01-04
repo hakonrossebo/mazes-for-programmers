@@ -13,13 +13,26 @@ let demoBinaryTreeGridPng () =
     printfn "Maze FP version in F# - BinaryTree Png"
     let grid = Grid.createGrid 20 20
     let newGrid = BinaryTree.createMaze grid
-    let img = Grid.toPng newGrid 30
+    let img = Grid.toPng None newGrid 30
     img.Save("maze.png")
     let mutable p = new Process()
     p.StartInfo.FileName <- "maze.png"
     p.StartInfo.UseShellExecute <- true
     p.Start() |> ignore
     newGrid.ToString()
+
+let demoBinaryDistanceColorTreeGridPng () =
+    printfn "Maze FP version in F# - BinaryTree Distance color Png"
+    let grid = Grid.createGrid 100 100
+    let newGrid = BinaryTree.createMaze grid
+    let start = Grid.getCell newGrid (Array2D.length1 newGrid / 2, Array2D.length2 newGrid / 2)
+    let distances = Distances.distances newGrid start
+    let img = Grid.toPng (Some distances) newGrid 10
+    img.Save("colorized.png")
+    let mutable p = new Process()
+    p.StartInfo.FileName <- "colorized.png"
+    p.StartInfo.UseShellExecute <- true
+    p.Start() |> ignore
 
 let demoBinaryTreeDistanceGridString () =
     printfn "Maze FP version in F# - BinaryTree Distance"
@@ -50,7 +63,6 @@ let demoLongestPathBinaryTreeDistanceGridString () =
     let pathDistances = Distances.pathTo newGrid newDistances newStart goal
     newGrid |> Grid.toString (Some (pathDistances)) |> printfn "%s"
 
-
 let demoSidewinderGridString () =
     printfn "Maze FP version in F# - Sidewinder"
     let grid = Grid.createGrid 10 10
@@ -61,7 +73,7 @@ let demoSidewinderGridPng () =
     printfn "Maze FP version in F# - Sidewinder Png"
     let grid = Grid.createGrid 20 20 
     let newGrid = Sidewinder.createMaze grid
-    let img = Grid.toPng newGrid 30
+    let img = Grid.toPng None newGrid 30
     img.Save("sidewinder-maze.png")
     let mutable p = new Process()
     p.StartInfo.FileName <- "sidewinder-maze.png"
@@ -73,8 +85,9 @@ let demoSidewinderGridPng () =
 let main argv =
     // demoBinaryTreeGridString() |> printfn "%s"
     // demoBinaryTreeGridPng() |> printfn "%s"
+    demoBinaryDistanceColorTreeGridPng |> timeOperation |> ignore
     // demoBinaryTreeDistanceGridString |> timeOperation |> ignore
-    demoLongestPathBinaryTreeDistanceGridString |> timeOperation |> ignore
+    // demoLongestPathBinaryTreeDistanceGridString |> timeOperation |> ignore
     // demoSidewinderGridString() |> printfn "%s"
     // demoSidewinderGridPng() |> printfn "%s"
     printfn "Grid created"

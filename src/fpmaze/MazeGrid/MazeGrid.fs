@@ -69,6 +69,16 @@ module Grid =
             then distances.[cell].ToString().Last().ToString()
             else " "
 
+    let backgroundColorFor (distances: Distances) (maximum:int) (cell: Cell) =
+        if distances.ContainsKey(cell) then 
+            let distance = distances.[cell]
+            let intensity = (float maximum - float distance) / float maximum
+            let dark = 255. * intensity |> int
+            let brigth = 128 + (127. * intensity |> int)
+            Color.FromArgb(dark, brigth, dark)
+        else 
+            Color.White
+
     let toString (distances: Distances option) (grid:Grid) =
         let distances = defaultArg distances (Distances())
         let contensOf = contensOf distances
@@ -88,16 +98,32 @@ module Grid =
             sbGrid.AppendLine(sbGridLineTop.ToString()) |> ignore
             sbGrid.AppendLine(sbGridLineBottom.ToString()) |> ignore
         sbGrid.ToString()
+    
 
-    let toPng (grid: Grid) cellSize =
+    let toPng (distances: Distances option) (grid: Grid) cellSize =
+        let max (distances:Distances) = distances |> Seq.maxBy (fun x -> x.Value) |> (fun x -> (x.Key, x.Value))
         let imgWidth = cellSize * Array2D.length2 grid + 1
         let imgHeight = cellSize * Array2D.length1 grid + 1
-
         let background = Brushes.White
         let wall = Pens.Black
         let mazeImage = new Bitmap(imgWidth, imgHeight)
         use graphics = Graphics.FromImage(mazeImage)
         graphics.FillRectangle(background, 0, 0, imgWidth, imgHeight)
+
+        distances 
+        |> Option.iter (fun distances -> 
+            let _, max = max distances
+            let backgroundColorFor = backgroundColorFor distances max
+            for cell in eachCell grid do
+                let row, col = cell.pos
+                let x1 = col * cellSize
+                let y1 = row * cellSize
+                let x2 = (col + 1) * cellSize
+                let y2 = (row + 1) * cellSize
+                let color = backgroundColorFor cell
+                let brush = new SolidBrush(color)
+                graphics.FillRectangle(brush, x1, y1, (x2 - x1), (y2 - y1))
+        )
 
         for cell in eachCell grid do
             let row, col = cell.pos
