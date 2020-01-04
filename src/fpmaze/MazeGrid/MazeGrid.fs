@@ -64,15 +64,13 @@ module Grid =
         grid.[cell1Row, cell1Col] <- cell1new
         grid.[cell2Row, cell2Col] <- cell2new
 
-    let contensOf (distances: Distances option) (cell: Cell) =
-        distances
-        |> Option.map (fun distances ->
+    let contensOf (distances: Distances) (cell: Cell) =
             if distances.ContainsKey(cell)
             then distances.[cell].ToString().Last().ToString()
-            else " ")
-        |> Option.defaultValue " "
+            else " "
 
     let toString (distances: Distances option) (grid:Grid) =
+        let distances = defaultArg distances (Distances())
         let contensOf = contensOf distances
         let cols = Array2D.length2 grid
         let corner = "+"
