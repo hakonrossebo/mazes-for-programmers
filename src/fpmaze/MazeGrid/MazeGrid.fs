@@ -111,6 +111,9 @@ module Grid =
             if not (isLinked cell cell.south) then graphics.DrawLine(wall, x1, y2, x2, y2)
         mazeImage
 
+
+module Distances =
+    open Grid
     let initDistances (initCell:Cell) = 
         let distances = Distances()
         distances.Add(initCell, 0)

@@ -26,11 +26,11 @@ let demoBinaryTreeDistanceGridString () =
     let grid = Grid.createGrid 10 10
     let newGrid = BinaryTree.createMaze grid
     let start = Grid.getCell newGrid (0,0)
-    let distances = Grid.distances newGrid start
+    let distances = Distances.distances newGrid start
     newGrid |> Grid.toString (Some (distances)) |> printfn "%s"
     printfn "Path from northwest corner to southwest"
     let goal = Grid.getCell newGrid (Array2D.length1 newGrid - 1, 0)
-    let pathDistances = Grid.pathTo newGrid distances start goal
+    let pathDistances = Distances.pathTo newGrid distances start goal
     newGrid |> Grid.toString (Some (pathDistances)) |> printfn "%s"
 
 
