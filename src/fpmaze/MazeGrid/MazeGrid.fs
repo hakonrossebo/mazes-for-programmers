@@ -21,6 +21,8 @@ type Grid = Cell [,]
 type Distances = Dictionary<Cell, int>
 
 module Grid =
+    let dimensions (grid:Grid) = (Array2D.length1 grid, Array2D.length2 grid)
+
     let createGrid rows columns : Grid =
         let getValidNeighbors (cell:Cell) =
             let row, col = cell.pos
@@ -42,17 +44,20 @@ module Grid =
         |> Option.defaultValue false
         
     let eachRow(grid:Grid) =
+        let rows, _ = dimensions grid
         seq {
-            for row in 0 .. (Array2D.length1 grid) - 1 do
+            for row in 0 .. rows - 1 do
                 yield grid.[row, *]
         }
 
     let eachCell(grid:Grid) =
+        let rows, cols = dimensions grid
         seq {
-            for row in 0 .. (Array2D.length1 grid) - 1 do
-                for col in 0 .. (Array2D.length2 grid) - 1 do
+            for row in 0 .. rows - 1 do
+                for col in 0 .. cols - 1 do
                     yield grid.[row, col]
         }
+
     
     let toSeq (grid: Cell [,]) = grid |> Seq.cast<Cell> 
 
@@ -82,7 +87,7 @@ module Grid =
     let toString (distances: Distances option) (grid:Grid) =
         let distances = defaultArg distances (Distances())
         let contensOf = contensOf distances
-        let cols = Array2D.length2 grid
+        let _, cols = dimensions grid
         let corner = "+"
         let sbGrid = StringBuilder()
         sbGrid.AppendLine("+" + ("---+" |> Seq.replicate cols |> String.concat "")) |> ignore
@@ -101,9 +106,18 @@ module Grid =
     
 
     let toPng (distances: Distances option) (grid: Grid) cellSize =
+        let rows, cols = dimensions grid
+        let coordinates (cellSize: int) (cell: Cell) =
+            let row, col = cell.pos
+            let x1 = col * cellSize
+            let y1 = row * cellSize
+            let x2 = (col + 1) * cellSize
+            let y2 = (row + 1) * cellSize
+            (x1, y1, x2, y2)
+
         let max (distances:Distances) = distances |> Seq.maxBy (fun x -> x.Value) |> (fun x -> (x.Key, x.Value))
-        let imgWidth = cellSize * Array2D.length2 grid + 1
-        let imgHeight = cellSize * Array2D.length1 grid + 1
+        let imgWidth = cellSize * cols + 1
+        let imgHeight = cellSize * rows + 1
         let background = Brushes.White
         let wall = Pens.Black
         let mazeImage = new Bitmap(imgWidth, imgHeight)
@@ -115,22 +129,14 @@ module Grid =
             let _, max = max distances
             let backgroundColorFor = backgroundColorFor distances max
             for cell in eachCell grid do
-                let row, col = cell.pos
-                let x1 = col * cellSize
-                let y1 = row * cellSize
-                let x2 = (col + 1) * cellSize
-                let y2 = (row + 1) * cellSize
+                let (x1, y1, x2, y2) = coordinates cellSize cell
                 let color = backgroundColorFor cell
                 let brush = new SolidBrush(color)
                 graphics.FillRectangle(brush, x1, y1, (x2 - x1), (y2 - y1))
         )
 
         for cell in eachCell grid do
-            let row, col = cell.pos
-            let x1 = col * cellSize
-            let y1 = row * cellSize
-            let x2 = (col + 1) * cellSize
-            let y2 = (row + 1) * cellSize
+            let (x1, y1, x2, y2) = coordinates cellSize cell
             cell.north |> ifNone (fun _ -> graphics.DrawLine(wall, x1, y1, x2, y1))
             cell.west |> ifNone (fun _ -> graphics.DrawLine(wall, x1, y1, x1, y2))
             if not (isLinked cell cell.east) then graphics.DrawLine(wall, x2, y1, x2, y2)
@@ -185,13 +191,5 @@ module Distances =
 
     let max (distances:Distances) = 
         distances |> Seq.maxBy (fun x -> x.Value) |> (fun x -> (x.Key, x.Value))
-
-
-
-
-
-
-
-
 
 
